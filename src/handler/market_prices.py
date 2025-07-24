@@ -1,10 +1,13 @@
 import requests
 import sqlite3
 from datetime import datetime
+import io
+import base64
 from vertexai.generative_models import GenerativeModel
 import config.vertexai_config
 from config.config import config
 from dbconnector.dbconnector import save_market_data, get_market_trend_data
+import matplotlib.pyplot as plt
 
 
 def fetch_current_daily_market_prices(request, state, district=None, market=None, commodity=None, variety=None, offset=1, limit=10):
@@ -69,7 +72,32 @@ def get_market_trend(request, state, district, market, commodity, variety=None, 
                 "created_at": row[9]
             }
             response.append(row)
-        return response
+
+        # Prepare data for plotting
+        dates = [row["arrival_date"] for row in response]
+        modal_prices = [row["modal_price"] for row in response]
+
+        type_of_trend = "Weekly" if type_of_trend == "weekly" else "Monthly"
+        # Plot the trend
+        plt.figure(figsize=(8, 4))
+        plt.plot(dates, modal_prices, marker='o')
+        plt.title(f"{type_of_trend} price trend for {commodity}")
+        plt.xlabel("Date")
+        plt.ylabel("Modal Price")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+
+        # Save plot to a bytes buffer
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        plt.close()
+        buf.seek(0)
+        img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+
+        return {
+            "trend_data": response,
+            "trend_chart_base64": img_base64
+        }
 
 def market_trend_qna(state, commodity, query, district, market, variety=None, type_of_trend="weekly"):
     market_prices = get_market_trend_data(state, commodity, district, market, variety, type_of_trend)

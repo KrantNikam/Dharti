@@ -13,6 +13,28 @@ def extract_city_and_intent(question: str):
     intent = "forecast" if "forecast" in question.lower() else "current"
     return city, intent
 
+def get_min_max_temps(forecast_data):
+    # Group temperatures by date
+    temps_by_date = dict()
+    print(forecast_data)
+
+    for entry in forecast_data:
+        if not temps_by_date.get(entry['datetime']):
+            temps_by_date[entry['datetime']] = {"temps": [], "condition": entry['condition']}
+        
+        temps_by_date[entry['datetime']]["temps"].append(entry['temp'])
+
+    # For each date, get min and max temp
+    min_max_by_date = []
+    for date, obj in temps_by_date.items():
+        min_max_by_date.append({
+            'date': date,
+            'condition': obj["condition"],
+            'min': min(obj["temps"]),
+            'max': max(obj["temps"])
+        })
+    return min_max_by_date
+
 def get_current_weather(city):
     url = f"{config["apis"]["openweather_api_url"]}/weather"
     api_key = config["apis"]["openweather_api_key"]
@@ -37,12 +59,12 @@ def get_forecast(city, days=2):
     forecast_list = []
     for item in response["list"][:days * 8]:  # 8 intervals per day
         forecast_list.append({
-            "datetime": datetime.utcfromtimestamp(item["dt"]).strftime('%Y-%m-%d %H:%M UTC'),
+            "date": datetime.utcfromtimestamp(item["dt"]).strftime('%Y-%m-%d'),
             "temp": item["main"]["temp"],
             "condition": item["weather"][0]["description"]
         })
+    forecast_list = get_min_max_temps(forecast_list)
     return forecast_list
-
 
 def ask_gemini_weather(question):
     city, intent = extract_city_and_intent(question)

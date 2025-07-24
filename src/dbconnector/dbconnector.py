@@ -102,6 +102,7 @@ def get_market_trend_data(state, commodity, district=None, market=None, variety=
     if market:
         query += f" AND market = '{market}'"
 
+    query += " ORDER BY CAST(arrival_date AS TIMESTAMP)"
     cursor.execute(query)
     rows = cursor.fetchall()
     conn.close()
