@@ -1,7 +1,7 @@
 from fastapi import Request, APIRouter, Query
 from pydantic import BaseModel, Field
 from typing import List
-from handler.market_prices import (fetch_current_daily_market_prices,
+from src.handler.market_prices import (fetch_current_daily_market_prices,
                                        get_market_trend,
                                        market_trend_qna,
                                        import_market_prices_data)

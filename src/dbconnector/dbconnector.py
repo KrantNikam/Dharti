@@ -1,4 +1,4 @@
-from config.config import config
+from src.config.config import config
 import psycopg2
 from datetime import datetime
 

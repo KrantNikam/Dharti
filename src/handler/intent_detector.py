@@ -1,11 +1,13 @@
 
 from vertexai.generative_models import GenerativeModel, GenerationConfig, Part, Image
-from utils.common import translate_back
-from handler.weather_forecast_agent import ask_gemini_weather
-from handler.schemes_agent import ask_gemini_with_web_data
-from handler.agronomist_agent import agronomist_agent
-from config.config import config
+from src.utils.common import translate_back
+from src.handler.weather_forecast_agent import ask_gemini_weather
+from src.handler.schemes_agent import ask_gemini_with_web_data
+from src.handler.agronomist_agent import agronomist_agent
+from src.config.config import config
+from src.config.vertexai_config import initializer
 
+initializer()
 
 def scheme_agent(query: str, language="en"):
     response = ask_gemini_with_web_data(query)
@@ -37,7 +39,7 @@ def detect_intent(user_query):
     )
     return response.text.strip().lower()
 
-def kisan_agent_router(query: str, crop_type=None, crop_age=None, image_path=None, language="en"):
+def kisan_agent_router(query: str, crop_type=None, crop_age=None, image_bytes=None, language="en"):
     intent = detect_intent(query)
 
     print(f"======QUERY IS ROUTED TO {intent} AGENT======")
@@ -48,12 +50,12 @@ def kisan_agent_router(query: str, crop_type=None, crop_age=None, image_path=Non
             crop_age=crop_age or "5",
             language=language,
             symptoms_description=query,
-            image_path=image_path
+            image_bytes=image_bytes
         )
     elif intent == "scheme":
         return scheme_agent(query, language)
     elif intent == "weather":
         return weather_agent(query, language)
     else:
-        return {"message": "❓ Sorry, I could not understand the query. Please ask about crop issues, mandi prices, or government schemes."}
+        return {"message": "❓ Sorry, I could not understand the query. Please ask about crop issues, weather, or government schemes."}
 

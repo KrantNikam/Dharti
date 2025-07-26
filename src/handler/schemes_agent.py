@@ -1,13 +1,16 @@
 import requests
 from vertexai.generative_models import GenerativeModel, GenerationConfig
-import config.vertexai_config
-from config.config import config
+from src.config.config import config
+from src.config.vertexai_config import initializer
 
+initializer()
+TRAVILY_API_KEY="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"
+TRAVILY_API_URL="https://api.tavily.com/search"
 
 # === Tavily Web Search ===
 def tavily_search(query):
-    url = config["apis"]["travily_api_url"]
-    api_key = config["apis"]["travily_api_key"]
+    url = TRAVILY_API_URL
+    api_key = TRAVILY_API_KEY
 
     headers = {
         "Content-Type": "application/json",

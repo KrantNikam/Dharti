@@ -1,8 +1,8 @@
 import re
 from google.cloud import translate_v2 as translate
-import config.vertexai_config as vertexai_config
+from src.config.vertexai_config import credentials
 
-translator = translate.Client(credentials=vertexai_config.credentials)
+translator = translate.Client(credentials=credentials)
 
 #Translation Utilities
 def translate_to_english(text):

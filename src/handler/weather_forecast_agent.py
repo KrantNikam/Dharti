@@ -3,9 +3,14 @@ import re
 from datetime import datetime
 from google.cloud import aiplatform_v1beta1 as aiplatform
 from vertexai.preview.generative_models import GenerativeModel, GenerationConfig
-import config.vertexai_config
-from config.config import config
+from src.config.vertexai_config import initializer
+from src.config.config import config
 
+
+initializer()
+
+OPENWEATHER_API_URL="https://api.openweathermap.org/data/2.5"
+OPENWEATHER_API_KEY="3037db4dd898fa6fc82acc60ae36223d"
 
 def extract_city_and_intent(question: str):
     city_match = re.search(r"in\s+([a-zA-Z\s]+)", question)
@@ -16,13 +21,12 @@ def extract_city_and_intent(question: str):
 def get_min_max_temps(forecast_data):
     # Group temperatures by date
     temps_by_date = dict()
-    print(forecast_data)
 
     for entry in forecast_data:
-        if not temps_by_date.get(entry['datetime']):
-            temps_by_date[entry['datetime']] = {"temps": [], "condition": entry['condition']}
+        if not temps_by_date.get(entry['date']):
+            temps_by_date[entry['date']] = {"temps": [], "condition": entry['condition']}
         
-        temps_by_date[entry['datetime']]["temps"].append(entry['temp'])
+        temps_by_date[entry['date']]["temps"].append(entry['temp'])
 
     # For each date, get min and max temp
     min_max_by_date = []
@@ -36,8 +40,8 @@ def get_min_max_temps(forecast_data):
     return min_max_by_date
 
 def get_current_weather(city):
-    url = f"{config["apis"]["openweather_api_url"]}/weather"
-    api_key = config["apis"]["openweather_api_key"]
+    url = f"{OPENWEATHER_API_URL}/weather"
+    api_key = OPENWEATHER_API_KEY
 
     params = {'q': f"{city},IN", 'appid': api_key, 'units': 'metric'}
     response = requests.get(url, params=params).json()
@@ -50,12 +54,26 @@ def get_current_weather(city):
     }
 
 def get_forecast(city, days=2):
-    url = f"{config["apis"]["openweather_api_url"]}/forecast"
-    api_key = config["apis"]["openweather_api_key"]
+    url = f"{OPENWEATHER_API_URL}/forecast"
+    api_key = OPENWEATHER_API_KEY
 
     params = {'q': f"{city},IN", 'appid': api_key, 'units': 'metric'}
     response = requests.get(url, params=params).json()
+    forecast_list = []
+    for item in response["list"][:days * 8]:  # 8 intervals per day
+        forecast_list.append({
+            "datetime": datetime.utcfromtimestamp(item["dt"]).strftime('%Y-%m-%d %H:%M UTC'),
+            "temp": item["main"]["temp"],
+            "condition": item["weather"][0]["description"]
+        })
+    return forecast_list
 
+def get_forecast_min_max(city, days=2):
+    url = f"{OPENWEATHER_API_URL}/forecast"
+    api_key = OPENWEATHER_API_KEY
+
+    params = {'q': f"{city},IN", 'appid': api_key, 'units': 'metric'}
+    response = requests.get(url, params=params).json()
     forecast_list = []
     for item in response["list"][:days * 8]:  # 8 intervals per day
         forecast_list.append({

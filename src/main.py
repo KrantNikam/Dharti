@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from routes.market_prices import router as market_prices_route
-from routes.agents import router as agents_route
-from routes.weather_forecast import router as weather_forecast_route
+from src.routes.market_prices import router as market_prices_route
+from src.routes.agents import router as agents_route
+from src.routes.weather_forecast import router as weather_forecast_route
 
 
 app = FastAPI()

@@ -4,11 +4,16 @@ from datetime import datetime
 import io
 import base64
 from vertexai.generative_models import GenerativeModel
-import config.vertexai_config
-from config.config import config
-from dbconnector.dbconnector import save_market_data, get_market_trend_data
+from src.config.config import config
+from src.dbconnector.dbconnector import save_market_data, get_market_trend_data
 import matplotlib.pyplot as plt
+from src.config.vertexai_config import initializer
 
+initializer()
+
+
+DAILY_MARKET_PRICES_API_URL="https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+DAILY_MARKET_PRICES_API_KEY="579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b"
 
 def fetch_current_daily_market_prices(request, state, district=None, market=None, commodity=None, variety=None, offset=1, limit=10):
     """
@@ -25,9 +30,9 @@ def fetch_current_daily_market_prices(request, state, district=None, market=None
     Returns:
     - A list of records containing market prices.
     """
-    api_key = config["apis"]["daily_market_prices_api_key"]
+    api_key = DAILY_MARKET_PRICES_API_KEY
     
-    api_endpoint = f"{config["apis"]["daily_market_prices_api_url"]}?api-key={api_key}&format=json"
+    api_endpoint = f"{DAILY_MARKET_PRICES_API_URL}?api-key={api_key}&format=json"
     if state:
         api_endpoint += f"&filters[state.keyword]={state}"
     if district:

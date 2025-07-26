@@ -1,7 +1,7 @@
 from fastapi import Request, APIRouter, Query
 from pydantic import BaseModel, Field
 from typing import List
-from handler.weather_forecast_agent import get_forecast
+from src.handler.weather_forecast_agent import get_forecast_min_max
 
 router = APIRouter(
     prefix="/weather-forecast",
@@ -17,5 +17,5 @@ def get_weather_forecast(request: Request,
         return {"message": "City parameter is required"}
     if not days or days < 1:
         return {"message": "Days parameter must be a positive integer"}
-    response = get_forecast(city, days)
+    response = get_forecast_min_max(city, days)
     return response
