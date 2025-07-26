@@ -24,9 +24,9 @@ def get_min_max_temps(forecast_data):
 
     for entry in forecast_data:
         if not temps_by_date.get(entry['date']):
-            temps_by_date[entry['date']] = {"temps": [], "condition": entry['condition']}
+            temps_by_date[entry["date"]] = {"temps": [], "condition": entry['condition']}
         
-        temps_by_date[entry['date']]["temps"].append(entry['temp'])
+        temps_by_date[entry["date"]]["temps"].append(entry['temp'])
 
     # For each date, get min and max temp
     min_max_by_date = []

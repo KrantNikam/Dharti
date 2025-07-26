@@ -79,7 +79,7 @@ def agronomist_agent(crop_type: str,
         response = model.generate_content(prompt, generation_config=generation_config)
 
     else:
-        raise ValueError("Either `symptoms_description` or `image_path` must be provided.")
+        raise ValueError("Either `symptoms_description` or `image` must be provided.")
 
     result = clean_response(response.text)
 
