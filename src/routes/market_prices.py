@@ -40,6 +40,23 @@ def get_daily_market_prices(request: Request,
     response = fetch_current_daily_market_prices(request, state, district, market, commodity, variety)
     return response
 
+@router.post("/trend/qna")
+def get_market_prices_trend(request: Request,
+                            payload: MarketPriceTrendQnA,
+                            state: str = Query(),
+                           district: str = Query(),
+                           market: str = Query(),
+                           commodity: str = Query(),
+                           variety: str = Query(None),
+                           type_of_trend: str = Query("weekly")):
+    payload = payload.model_dump()
+    query = payload.get("query")
+    if not query:
+        return {"message": "Please provide a question to get an answer."}
+
+    response = market_trend_qna(state, commodity, query, district, market, variety, type_of_trend)
+    return response
+
 @router.get("/trend")
 def get_market_prices_trend(request: Request,
                             state: str = Query(),
